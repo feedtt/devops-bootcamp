@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-        string(defaultValue: 'https://raw.githubusercontent.com/elastic/examples/master/Common%Data%20Formats/apache_logs/apache_logs', description: 'URL del archivo de log', name: 'logURL')
+        string(defaultValue: 'https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs', description: 'URL del archivo de log', name: 'logURL')
     }
 
     stages {
