@@ -2,19 +2,14 @@ pipeline {
     agent any
 
     parameters {
-        string(defaultValue: 'https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/apache_logs/apache_logs', description: 'URL del archivo de log', name: 'logURL')
+        string(defaultValue: 'https://raw.githubusercontent.com/elastic/examples/master/Common%Data%20Formats/apache_logs/apache_logs', description: 'URL del archivo de log', name: 'logURL')
     }
 
     stages {
         stage('Descargar archivo de log') {
             steps {
                 script {
-                    def file = downloadLogFile(params.logURL)
-                    if (file) {
-                        echo "Archivo de log descargado exitosamente."
-                    } else {
-                        error "No se pudo descargar el archivo de log."
-                    }
+                    sh "curl -o apache_logs.txt ${params.logURL}"
                 }
             }
         }
@@ -33,13 +28,4 @@ pipeline {
     }
 }
 
-def downloadLogFile(logURL) {
-    def response = httpRequest(url: logURL)
-    if (response.status == 200) {
-        writeFile file: 'apache_logs.txt', text: response.content
-        return true
-    } else {
-        return false
-    }
-}
 
