@@ -9,7 +9,12 @@ pipeline {
         stage('Descargar archivo de log') {
             steps {
                 script {
-                    sh "curl -o apache_logs.txt ${params.logURL}"
+                    def file = downloadLogFile(params.logURL)
+                    if (file) {
+                        echo "Archivo de log descargado exitosamente."
+                    } else {
+                        error "No se pudo descargar el archivo de log."
+                    }
                 }
             }
         }
@@ -27,3 +32,14 @@ pipeline {
         }
     }
 }
+
+def downloadLogFile(logURL) {
+    def response = httpRequest(url: logURL)
+    if (response.status == 200) {
+        writeFile file: 'apache_logs.txt', text: response.content
+        return true
+    } else {
+        return false
+    }
+}
+
