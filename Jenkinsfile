@@ -21,7 +21,7 @@ pipeline {
                     def count = logLines.findAll { line ->
                         line.contains('logstash') && line.contains('200')
                     }.size()
-                    echo "El número de solicitudes con el nombre logstash y código de respuesta 200 es: ${count}"
+                    echo "El número de solicitudes con el nombre logstash y código response 200 es: ${count}"
                 }
             }
         }
