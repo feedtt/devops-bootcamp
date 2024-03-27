@@ -1,28 +1,34 @@
 pipeline {
     agent any
-
-    parameters {
-        string(defaultValue: 'https://raw.githubusercontent.com/elastic/examples/master/Common%Data%20Formats/apache_logs/apache_logs', description: 'URL del archivo de log', name: 'logURL')
+    
+    environment {
+        DEPARTMENT = 'tecnologia' // Departamento por defecto
     }
-
+    
+    parameters {
+        string(name: 'LOGIN', defaultValue: '', description: 'Ingrese el login del usuario')
+        string(name: 'NAME', defaultValue: '', description: 'Ingrese el nombre del usuario')
+        string(name: 'DEPARTMENT', defaultValue: '', description: 'Ingrese el departamento del usuario: contabilidad, finanzas o tecnologia')
+    }
+    
     stages {
-        stage('Descargar archivo de log') {
+        stage('Crear Usuario') {
             steps {
                 script {
-                    sh "curl -o apache_logs.txt ${params.logURL}"
+                    def password = sh(script: "openssl rand -base64 12", returnStdout: true).trim() // Genera una contraseña temporal
+                    sh "sudo useradd -m -s /bin/bash -c '${params.NAME}' ${params.LOGIN}" // Crea el usuario
+                    sh "echo '${params.LOGIN}:${password}' | sudo chpasswd" // Asigna la contraseña al usuario
                 }
             }
         }
-
-        stage('Contar solicitudes') {
+        
+        stage('Enviar Contraseña por Email') {
+            when {
+                expression { params.LOGIN != '' && params.NAME != '' && params.DEPARTMENT != '' }
+            }
             steps {
-                script {
-                    def logLines = readFile('apache_logs.txt').split('\n')
-                    def count = logLines.findAll { line ->
-                        line.contains('logstash') && line.contains('200')
-                    }.size()
-                    echo "El número de solicitudes con el nombre logstash y código response 200 es: ${count}"
-                }
+                echo "Contraseña temporal para ${params.LOGIN}: ${password}" // Muestra la contraseña temporal
+                // Aquí añadirías la lógica para enviar la contraseña por correo electrónico
             }
         }
     }
